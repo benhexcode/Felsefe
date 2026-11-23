@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Felsefe Oyunları</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:"Trebuchet MS",system-ui,sans-serif;background:linear-gradient(-45deg,#6a11cb,#ff3d81,#ff9a00,#00c6ff);background-size:400% 400%;animation:bg 14s ease infinite;min-height:100vh;color:#222}@keyframes bg{50%{background-position:100% 50%}}
+#app{max-width:960px;margin:auto;padding:14px}.card{background:#fffffff0;border-radius:24px;padding:20px;margin:12px 0;box-shadow:0 8px 0 #0003,0 18px 40px #0003}
+h1,h2{margin:.2em 0}.top{color:#fff;text-shadow:0 3px 0 #0006;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+button,select,input{font:inherit;padding:11px 16px;border-radius:14px;border:3px solid #ddd;max-width:100%}
+button{cursor:pointer;border:0;background:#7c3aed;color:#fff;font-weight:800;margin:4px;box-shadow:0 6px 0 #0004;transition:.1s}button:hover{filter:brightness(1.12);transform:translateY(-2px)}button:active{transform:translateY(4px);box-shadow:0 2px 0 #0004}
+.b2{background:#ff9800}.b3{background:#e53935}.b4{background:#16a34a}
+.opt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;font-size:1.1em;margin:8px 0;padding:14px}.l{background:#1e88e5}.r{background:#8e24aa}
+.c0{background:#e53935}.c1{background:#1e88e5}.c2{background:#f9a825;color:#222}.c3{background:#43a047}
+.ok{background:#4caf50!important;color:#fff!important;animation:pop .4s}.no{background:#555!important;color:#fff!important;animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}@keyframes pop{50%{transform:scale(1.08)}}
+.big{font-size:2.6em;text-align:center;margin:.3em}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tag{background:#ffeb3b;border-radius:8px;padding:2px 8px;font-weight:700}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px}.tile{padding:18px 8px;font-size:1.05em}.tile.on{outline:5px solid #222;transform:scale(1.05)}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:5px;text-align:center}.sel{outline:4px solid #ffeb3b}.gone{visibility:hidden}
+.bar{height:14px;border-radius:9px;background:#0002;overflow:hidden}.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#e53935,#facc15,#16a34a)}
+#hud{display:flex;justify-content:space-between;font-weight:800;font-size:1.2em}#clue{background:#ffeb3b;border-radius:14px;padding:12px;font-weight:800;text-align:center;font-size:1.2em;margin:8px 0}
+#arena{position:relative;height:min(62vh,440px);overflow:hidden;border-radius:18px;touch-action:manipulation;background:radial-gradient(#fff9 1.2px,transparent 1.5px) 0 0/38px 38px,linear-gradient(#1a1a5e,#6a11cb)}
+#arena.fall:after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;background:#e53935}
+.fw{position:absolute;padding:9px 16px;border-radius:30px;color:#fff;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:0 5px 0 #0005;user-select:none;touch-action:manipulation}
+.bl{border-radius:50% 50% 48% 48%;padding:16px 20px}.bl:after{content:"";position:absolute;left:50%;top:100%;width:2px;height:20px;background:#fffa}
+.cf{position:fixed;top:-40px;font-size:28px;z-index:8;animation:cf 3.5s linear forwards}@keyframes cf{to{transform:translateY(115vh) rotate(720deg)}}
+#ov{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}#ov div{background:#fff;padding:30px;border-radius:20px;text-align:center}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style></head><body><div id="app"></div><div id="ov"><div><h2>⏸ Oyun durdu</h2><button class="b4" onclick="resume()">Devam</button></div></div>
+<script>
+// Kitap: MEB 10. Sınıf Felsefe Ders Kitabı (2026). [kod, başlık, sayfa, [[kavram, açıklama]...]]
+const U10=[
+["1. Felsefenin Doğası",[
+["1.1","Felsefenin Anlamı",16,[["Philosophia","Bilgelik sevgisi, bilginin peşinden koşmak"],["Pythagoras","Philosophia terimini ilk kullanan kişi"],["Philia","Sevgi, arayış"],["Sophia","Bilgelik"],["Bilinç","Duygunun, algının ve bilginin merkezi"],["Karl Jaspers","Felsefe yolda olmaktır"]]],
+["1.2","Felsefi Düşüncenin Özellikleri",20,[["Yığılımlı ilerleme","Geçmiş filozofların düşüncelerinin eleştirilip geliştirilmesi"],["Tutarlı olma","Düşünceler arasında çelişki bulunmaması"],["Evrensel olma","Problemlerin tüm insanlığı ilgilendirmesi"],["Refleksif olma","Zihnin kendi düşüncelerini yeniden düşünmesi"],["Şüphe etme","Doğru kabul edilen bilgilerin dayanaklarını araştırma"],["Hayret etme","Alışılmışın dışına çıkıp dünyaya şaşkınlıkla bakma"]]],
+["1.3","Felsefi Düşüncenin Gelişimi",24,[["Thales","İlk Çağ filozofu, ana maddeyi su olarak görür"],["Antik Yunan","Felsefenin sistemli hâle geldiği yer"],["Beytülhikme","Bağdat’ta kurulan, çeviri yapılan ilim merkezi"],["Gutenberg","1445’te matbaayı icat eden kişi"],["Francis Bacon","Doğayı keşfetmek için tümevarımı ortaya koyan filozof"]]],
+["1.4","Felsefi Soruların Özellikleri",29,[["Açıklık (açık uçluluk)","Tek ve kesin bir cevabı olmaması"],["Evrensellik","Zaman ve mekândan bağımsız, insan olmanın temel durumlarına odaklanması"],["Kavramsal derinlik","Kavramların özünü ve temellerini sorgulaması"],["Kurucu / yönlendirici olma","Cevapların insanın dünya görüşünü şekillendirmesi"]]],
+["1.5","Felsefenin Diğer Alanlarla İlişkisi",34,[["Bilim","Gözlem, deney ve ölçümle somut olayları inceler"],["Din","Bilgiyi vahiy ve kutsal metinlerden alır"],["Sanat","Hayal gücüyle duyguları estetik biçimde ifade eder"],["Felsefe","Varlığı bir bütün olarak ele alıp akıl yürütmeyle gerekçe üretir"]]],
+["1.6","Felsefenin Bireysel ve Toplumsal İşlevi",37,[["Dünya Felsefe Günü","UNESCO’nun belirlediği, kasım ayının üçüncü perşembesi"],["P4C","Çocuklar İçin Felsefe yaklaşımı"],["Felsefe yapmak","Kendi sorusunu ve cevabını üretmek"],["Felsefe öğrenmek","Başkalarının verdiği cevapları öğrenmek"]]]]],
+["2. Felsefe, Mantık ve Argümantasyon",[
+["2.1","Düşünme ve Dil İlişkisi",48,[["Düşünme","Kişinin kendi kendisiyle yaptığı sessiz konuşma"],["Dil","Kavramları temsil eden göstergeler dizgesi"],["Birinci görüş","Dil ve düşünme özdeştir"],["İkinci görüş","Dil, düşünmeden bağımsız bir iletişim aracıdır"],["Üçüncü görüş","Dil ve düşünme birbirini etkiler ama biri diğerine indirgenemez"]]],
+["2.2","Mantık ve Argümantasyonun Temel Kavramları",52,[["Özdeşlik ilkesi","A, A’dır"],["Çelişmezlik ilkesi","Bir yargı aynı anda hem doğru hem yanlış olamaz"],["Üçüncü hâlin imkânsızlığı","Bir şey ya A’dır ya A değildir"],["Yeter-sebep ilkesi","Yeterli neden olmadan hiçbir yargı doğru olamaz"],["Tümdengelim","Genelden özele giden akıl yürütme"],["Tümevarım","Çok sayıda gözlemden genellemeye giden akıl yürütme"],["Analoji","Benzerlikten yola çıkıp başka benzerlikler çıkarma"],["Önerme","Doğru ya da yanlış bir yargı bildiren cümle"]]],
+["2.3","Argümantasyonun Yapısı",59,[["Öncül (P)","Sonucu kanıtlayan önerme"],["Sonuç (C)","Öncüllerle kanıtlanan önerme"],["Safsata","Görünüşte geçerli ama mantıksal olarak hatalı akıl yürütme"],["Adam karalama","Argüman yerine kişiye hakaret ederek saldırma"],["Cımbızlama","Yalnızca destekleyici verileri seçip karşıt verileri görmezden gelme"],["Otoriteye başvurma","Uzman veya kurum saygınlığını koz olarak kullanma"],["Popülerliğe başvurma","Çoğunluk beğendiği için doğru saymak"]]]]],
+["3. Varlık Felsefesi",[
+["3.1","Varlık Felsefesinin Konusu ve Kavramları",73,[["Öz","Varlığın kimliğini belirleyen, değişmeyen özellikler"],["Fenomen","Nesne ve olayların insan bilincinde beliren hâlleri"],["Töz","Başka bir şeye bağlı olmadan var olan temel varlık"],["İdea","Yalnızca düşünmeyle kavranan asıl gerçeklik"],["Madde","Uzayda yer kaplayan fiziksel varlık"],["Varoluş","Bir varlığın kendini gerçekleştirmesi"],["Oluş","Bir şeyin meydana gelme süreci"]]],
+["3.2","Varlık Felsefesinin Temel Problemleri",76,[["Thales","Ana madde sudur"],["Anaksimenes","Ana madde havadır"],["Herakleitos","Ana madde ateştir, her şey akar"],["Demokritos","Ana madde atomdur"],["Anaksimandros","Ana madde apeirondur"],["Gorgias","Hiçbir şey yoktur (nihilizm)"],["Aristoteles","Her varlık madde ve formdan oluşur (realizm)"],["Descartes","Düalizm temsilcisi"],["Husserl","Fenomenolojinin kurucusu"],["Sartre","Varoluşçuluk temsilcisi"]]]]],
+["4. Bilgi Felsefesi",[
+["4.1","Bilgi Felsefesinin Konusu ve Kavramları",93,[["Epistemoloji","Bilginin imkânını, kaynağını ve doğruluğunu inceleyen alan"],["Özne","Bilen, bilgi edinen"],["Nesne","Bilinen, bilginin konusu"],["Doğruluk","Yargının gerçeğe uygun olması"]]],
+["4.2","Bilgi Felsefesinin Temel Problemleri",97,[["Rasyonalizm","Bilginin kaynağı akıldır"],["Empirizm","Bilginin kaynağı deney ve duyulardır"],["Septisizm","Kesin bilgiye ulaşılamayacağını savunan şüphecilik"],["Dogmatizm","Bilginin mümkün olduğunu sorgulamadan kabul etme"],["Koherans","Doğruluk ölçütü: tutarlılık"],["Korrespondans","Doğruluk ölçütü: gerçeğe uygunluk"],["Pragmatizm","Doğruluk ölçütü: yararlılık"]]]]],
+["5. Ahlak Felsefesi",[
+["5.1","Ahlak Felsefesinin Konusu ve Kavramları",114,[["Etik","Ahlak felsefesi; ahlaki davranışı inceler"],["Vicdan","Davranışları ahlaki açıdan değerlendiren iç ses"],["Erdem","İyi olanı sürekli ve bilinçli yapma alışkanlığı"],["Sorumluluk","Eylemlerin sonuçlarını üstlenme"]]],
+["5.2","Ahlak Felsefesinin Temel Problemleri",117,[["Kant","Ödev ahlakı; ahlak yasası evrenseldir"],["Faydacılık","Çoğunluğa en çok mutluluk veren davranış ahlaklıdır"],["Determinizm","Her olay nedenleri tarafından belirlenmiştir"],["İndeterminizm","İnsan özgür iradeye sahiptir"],["Özgürlük-sorumluluk","Özgür olmayan eylemlerden kişi sorumlu tutulamaz"]]]]],
+["6. Estetik ve Sanat Felsefesi",[
+["6.1","Estetik ve Sanat Felsefesinin Konusu",135,[["Estetik","Güzelliği ve sanatı inceleyen felsefe alanı"],["Sanat","Hayal gücüyle duyguları estetik biçimde ifade etme"],["Estetik yargı","Bir şey için güzel ya da çirkin demek"],["Mimesis","Sanatın doğayı taklit etmesi"]]],
+["6.2","Estetik ve Sanat Felsefesinin Problemleri",138,[["Nesnelci görüş","Güzellik nesnenin kendi özelliğidir"],["Öznelci görüş","Güzellik bakanın zevk ve duygusuna bağlıdır"],["Ortak estetik yargı","Herkesin paylaşabileceği güzellik ölçütü olup olmadığı problemi"],["Platon","Güzel, ideal olanla ilişkilidir"]]]]],
+["7. Siyaset Felsefesi",[
+["7.1","Siyaset Felsefesinin Konusu ve Kavramları",153,[["Devlet","Toplumsal düzeni sağlayan en geniş siyasal örgüt"],["İktidar","Karar verme ve uygulatma gücü"],["Meşruiyet","İktidarın toplum tarafından haklı kabul edilmesi"],["Adalet","Herkese hakkını verme"]]],
+["7.2","Siyaset Felsefesinin Temel Problemleri",156,[["Toplum sözleşmesi","Devletin kökeni, bireylerin aralarındaki anlaşmadır"],["Hobbes","Toplum sözleşmesi kuramcısı; mutlak otoriteyi savunur"],["Ütopya","İdeal toplum tasarımı"],["Thomas More","Ütopya eserinin yazarı"],["Farabi","Erdemli Şehir düşüncesi"]]]]],
+["8. Din Felsefesi",[
+["8.1","Din Felsefesinin Konusu ve Kavramları",171,[["Din felsefesi","Dinî inançları akıl yoluyla inceleyen alan"],["Teizm","Tanrı’nın evreni yarattığına ve yönettiğine inanma"],["Deizm","Tanrı evreni yaratmıştır ama müdahale etmez"],["Ateizm","Tanrı’nın varlığını reddetme"],["Agnostisizm","Tanrı’nın varlığı bilinemez görüşü"]]],
+["8.2","Din Felsefesinin Temel Problemleri",174,[["Ontolojik kanıt","Tanrı kavramından varlığını çıkaran kanıt (Anselmus)"],["Kozmolojik kanıt","Evrenin bir nedeni olmalı, o da Tanrı’dır"],["Teleolojik kanıt","Evrendeki düzen bilinçli bir tasarımcıyı gösterir"],["Ruhun ölümsüzlüğü","Ruhun bedenin ölümünden sonra da var olduğu görüşü"]]]]],
+["9. Bilim Felsefesi",[
+["9.1","Bilim Felsefesinin Konusu ve Kavramları",186,[["Bilim felsefesi","Bilimin doğasını ve yöntemini sorgular"],["Olgu","Gözlenebilir, doğrulanabilir gerçeklik"],["Hipotez","Denenmek üzere ileri sürülen geçici açıklama"],["Teori","Olguları açıklayan, test edilmiş genel açıklama"]]],
+["9.2","Bilim Felsefesinin Temel Problemleri",189,[["Yanlışlanabilirlik","Popper’a göre bilimsel önermenin ölçütü"],["Paradigma","Kuhn’a göre bilimin dayandığı ortak çerçeve"],["Tümevarım","Bilimsel yöntemde gözlemden genellemeye ulaşma"],["Bilimsel devrim","Eski paradigmanın yerini yenisinin alması"]]]]]];
+const U11=[
+["1. Çevre Sorunları ve Felsefe",[
+["1.1","Çevre ve İnsan İlişkisi",16,[["Çevre","İnsanı kuşatan ve yaşamını etkileyen fiziksel, kimyasal, biyolojik, sosyal ve kültürel koşulların bütünü"],["Fiziksel çevre","Doğal ve yapay unsurlardan oluşan çevre"],["Sosyokültürel çevre","İnsan ilişkileri temelinde şekillenen yapı"],["Bhopal","1984’te Hindistan’da yaşanan gaz sızıntısı felaketi"],["Aral Gölü","Hatalı uygulamalar sonucu büyük ölçüde kuruyan Özbekistan’daki göl"],["Francis Bacon","Bilgi güçtür; doğayı bilimle egemenlik altına almayı savunur"],["Descartes","Merkezinde akıllı insanın bulunduğu mekanik bir doğa görüşünü benimser"],["Adorno","Doğaya egemen olmak, doğaya yabancılaşmayı getirir"]]],
+["1.2","Çevre Etiği",25,[["Çevre etiği","İnsanın çevreye karşı ahlaki sorumluluklarını felsefi açıdan inceleyen uygulamalı etik alanı"],["İnsan merkezci yaklaşım","İnsan tüm canlılardan değerlidir, doğa araçsal değer taşır"],["Canlı merkezci yaklaşım","Tüm canlılar, insanın verdiği değerden bağımsız olarak değerlidir"],["Çevre merkezci yaklaşım","Ahlaki sorumluluğu cansız doğayı da kapsayacak şekilde genişletir"],["Derin ekoloji","Çevre insandan bağımsız olarak değerlidir (Arne Naess)"],["Fütüristik yaklaşım","Merkeze gelecek kuşakları alır"],["Aldo Leopold","Etik alanın cansız çevreyi de içine alacak şekilde genişletilmesini savunur"],["Paul W. Taylor","Doğaya Saygı adlı eserinde Kantçı etiği tüm canlılar için benimser"],["Nesiller arası eşitlik","Dünya kaynaklarının nesiller boyu adil paylaşılması"]]]]],
+["2. Teknoloji ve Hayat",[
+["2.1","Teknoloji ve İnsan Hayatı",48,[["Teknoloji","Bilgiyi pratik amaçlarla kullanarak araç ve yöntem geliştirme"],["Tarafsızlık tezi","Teknoloji kendi başına iyi ya da kötü değildir, kullanımı belirler"],["Teknolojik determinizm","Teknoloji, toplumsal değişimin temel belirleyicisidir"],["Heidegger","Her şeyi ölçüp hesaplayan yaklaşım varlığın anlamının unutulmasına yol açar"]]],
+["2.2","Teknoloji Bağlamında Ontolojik Problemler",58,[["Ontoloji","Varlığın ne olduğunu inceleyen felsefe alanı"],["Sanal gerçeklik","Bilgisayarla üretilen, gerçek gibi deneyimlenen ortam"],["Yapay zekâ","Makinelerin insana özgü zihinsel işlevleri taklit etmesi"],["Gerçeklik problemi","Gerçek ile sanalın birbirinden ayırt edilip edilemeyeceği sorusu"]]],
+["2.3","Teknoloji Bağlamında Aksiyolojik Problemler",64,[["Aksiyoloji","Değer felsefesi"],["Mahremiyet","Kişisel hayatın ve verilerin korunması"],["Teknolojinin etik sorunları","Teknolojinin kullanımında neyin iyi, neyin kötü olduğu sorusu"],["Sorumluluk problemi","Teknolojik sonuçlardan kimin sorumlu olduğu sorusu"]]]]],
+["3. Akıl ve İnanç",[
+["3.1","Akıl-İnanç İlişkisine Yönelik Sorular ve Problemler",80,[["Akıl","Çıkarım yapabilme ve doğruyu yanlıştan ayırma yetisi"],["İnanç","Bir şeyi kanıta ihtiyaç duymadan doğru kabul etme"],["Vahiy","Tanrı’dan peygamberlere gelen bilgi"],["Fideizm","İnanç akıldan üstündür görüşü"]]],
+["3.2","Akıl-İnanç İlişkisine Yönelik Görüş ve Argümanlar",85,[["Augustinus","Anlamak için inan"],["Thomas Aquinas","Akıl ve inanç birbirini tamamlar"],["İbn Rüşd","Akıl ile vahiy çelişmez"],["Kant","Bilginin sınırlandırılması inanca yer açar"]]]]],
+["4. Edebiyat ve Felsefe",[
+["4.1","Edebiyat-Felsefe İlişkisi",108,[["Edebî metin","İmge ve kurguya dayanan, duyguyu estetik biçimde dile getiren metin"],["Felsefi metin","Kavram ve argümana dayanan, problemi sorgulayan metin"],["Platon","Felsefesini diyalog biçiminde yazan düşünür"],["Sartre","Bulantı romanıyla felsefi görüşlerini edebî biçimde dile getirmiştir"],["Camus","Yabancı ve Sisifos Söyleni eserlerinde absürd kavramını işler"]]],
+["4.2","Edebiyat-Felsefe İlişkisi Problemleri",114,[["Edebî unsurlar","Kahraman, zaman, mekân ve olay örgüsü gibi eserin yapı taşları"],["Felsefi bakış","Edebî unsurlardan hareketle felsefi problem çıkarma"],["Hakikat problemi","Kurgusal anlatının gerçeği yansıtıp yansıtmadığı sorusu"],["Yorum","Metnin anlamını okurun kendi bakışıyla kurması"]]]]],
+["5. Hayatın Anlamı",[
+["5.1","Hayatın Anlamına Yönelik Sorular ve Problemler",140,[["Hayatın anlamı","İnsanın var oluşunun amacı ve değeri sorusu"],["Nihilizm","Hayatın hiçbir anlamı ve değeri olmadığı görüşü"],["Absürd","Camus’ya göre insan anlam arar ama evren sessiz kalır"],["Ölümlülük","İnsanın sonlu olması; anlam sorusunu doğuran temel durum"]]],
+["5.2","Hayatın Anlamına Yönelik Görüş ve Argümanlar",147,[["Hedonizm","En yüksek iyi hazdır (Epikuros)"],["Eudaimonia","Aristoteles’e göre erdemli yaşamla ulaşılan mutluluk"],["Stoacılar","Mutluluk, doğaya uygun ve tutkulardan arınmış yaşamdır"],["Varoluşçuluk","Varoluş özden önce gelir (Sartre)"],["Kendi olma","İnsanın kendi seçimleriyle kendini kurması"]]]]],
+["6. Hukuk ve Felsefe",[
+["6.1","Hukuk ve İnsan",172,[["Hukuk","Toplumsal yaşamı düzenleyen, devlet yaptırımıyla desteklenen kurallar bütünü"],["Hak","Hukukça korunan çıkar ve yetki"],["Adalet","Herkese hakkını verme"],["Hukuk felsefesi","Hukukun doğasını, kaynağını ve amacını inceleyen felsefe alanı"]]],
+["6.2","Hukukun Doğasına Yönelik Felsefi Problemler",176,[["Pozitivizm (hukuk)","Hukuk, yetkili otoritenin koyduğu kurallardır"],["Doğal hukuk","İnsan doğasından çıkan evrensel ilkeler hukukun temelidir"],["Ahlak kuralları","İç yaptırım taşır; vicdana dayanır"],["Hukuk kuralları","Dış yaptırım taşır; devlet tarafından uygulanır"],["Hukukun amacı","Adalet, düzen ve güvenliği sağlamak"]]]]]];
+const U12=[
+["10. Sınıf bölümü · 1. Felsefeyi Tanıma",[
+["10.1.1","Felsefenin Anlamı",12,[["Philosophia","Sevgi (philia) ile bilgelik (sophia) sözcüklerinden oluşur; bilgelik sevgisi"],["Pythagoras","Felsefe terimini ilk kullanan kişi"],["Hikmet","Bütün olup bitenlerin esasını bilmek"],["Filozof","Bilgiyi seven, bilgeliği arayan kişi"],["Bilinç","Kişinin iç dünyasının ve çevresinin farkında olmasını sağlayan yeti"],["Öz bilinç","Kişinin kendisinin bilincinde olması"],["Karl Jaspers","Felsefe, yolda olmaktır"],["Aristoteles","Felsefe, ilkeler ya da ilk nedenler bilimidir"]]],
+["10.1.2","Felsefi Düşüncenin Özellikleri",16,[["Thales","İlk filozof kabul edilir; Milet’te yaşamıştır"],["Refleksif","Filozofun kendi düşünceleri üzerine de düşünmesi"],["Yığılımlı","Farklı filozofların açıklamalarının birikerek derinleşmesi"],["Evrensel","Tüm insanlığı ilgilendiren problemleri ele alması"],["Tutarlı","Düşünceler arasında çelişki bulunmaması"],["Rasyonel","Konuları akıl ilkelerine ve akıl yürütme kurallarına göre açıklama"],["Felsefedeki “Nedir?” sorusu","Kavramların anlamını ve özünü sorgular"],["Felsefi soru","Günlük ihtiyaçlara yönelik olmayan, kesin cevabı bulunmayan soru"]]],
+["10.1.3","Felsefenin İnsan ve Toplum Hayatı Üzerindeki Rolü",19,[["Bireysel işlev","Tutarlı bir dünya görüşü oluşturabilme"],["Bireysel işlev","Olaylara farklı açılardan bakabilme"],["Toplumsal işlev","Özgürlük, insan hakları, demokrasi gibi kavramları sorgulayarak geliştirme"],["Toplumsal işlev","Düşüncede tutuculuğun ve ön yargıların önüne geçme"]]]]],
+["10. Sınıf bölümü · 2. Felsefe ile Düşünme",[
+["10.2.1","Düşünme ve Akıl Yürütmeye İlişkin Kavramlar",30,[["Görüş","Bir olay, varlık veya düşünce üzerinde varılan öznel yargı"],["Önerme","Doğru ya da yanlış olarak değerlendirilen yargı bildiren ifade"],["İddia","İleri sürülerek savunulan düşünce"],["Gerekçe","Bir iddianın dayandığı neden"],["Argüman","İddia ve onu kanıtlamak için ileri sürülen gerekçelerin bütünü"],["Tümdengelim","Genelden özele giden akıl yürütme"],["Tümevarım","Özelden genele giden akıl yürütme"],["Analoji","Benzerliklerden yola çıkıp başka benzerlikler çıkarma"],["Çelişik ifadeler","Biri doğruyken diğeri mutlaka yanlış olan ifadeler"],["Gerçeklik","Var olan şeylerin tümü; varlık alanıyla ilgilidir"],["Doğruluk","Bilginin gerçeklikle örtüşmesi; bilgi alanıyla ilgilidir"],["Temellendirme","Ortaya atılmış bir iddianın dayanaklarını ortaya koyma"]]],
+["10.2.2","Dil ve Düşünme İlişkisi",34,[["Dil","Duygu ve düşünceleri göstermeyi sağlayan semboller sistemi"],["Kavram","Nesnelerin ortak özelliklerine göre zihinde sınıflandırılması"],["Terim","Zihindeki kavramın dildeki karşılığı"],["Humboldt","Dil, düşünmenin biçimlendirici organıdır"],["Nermi Uygur","Dil olmaksızın düşünme gerçekleşmez"],["Aristoteles","Düşünme bir çeşit iç konuşmadır"],["Leibniz","Dil zihnin aynasıdır"]]]]],
+["10. Sınıf bölümü · 3. Temel Konular ve Problemler",[
+["10.3.1","Varlık Felsefesi",42,[["Ontoloji","Varlığın ne olduğunu inceleyen felsefe alanı"],["Materyalizm","Varlığın temeli maddedir"],["İdealizm","Varlığın temeli idea ya da ruhtur"],["Düalizm","Varlık hem madde hem ruhtan oluşur (Descartes)"],["Bilime göre varlık","Deney ve gözlemle incelenen olgusal varlık alanı"]]],
+["10.3.2","Bilgi Felsefesi",52,[["Epistemoloji","Bilginin kaynağını, imkânını ve doğruluğunu inceleyen alan"],["Rasyonalizm","Bilginin kaynağı akıldır"],["Empirizm","Bilginin kaynağı deney ve duyulardır"],["Septisizm","Kesin bilgiye ulaşılamayacağını savunan görüş"],["Tutarlılık ölçütü","Bir önermenin diğer bilgilerle uyuşması"],["Uygunluk ölçütü","Bilginin nesneyle örtüşmesi"],["Tümel uzlaşım","Bilginin doğruluğunda çoğunluğun aynı fikirde olması"]]],
+["10.3.3","Bilim Felsefesi",62,[["Bilim felsefesi","Bilimin doğasını ve yöntemini sorgular"],["Olgu","Gözlenebilir, doğrulanabilir gerçeklik"],["Hipotez","Denenmek üzere ileri sürülen geçici açıklama"],["Yanlışlanabilirlik","Popper’a göre bilimsel önermenin ölçütü"],["Paradigma","Kuhn’a göre bilimin dayandığı ortak çerçeve"]]],
+["10.3.4","Ahlak Felsefesi",70,[["Etik","Ahlak felsefesi"],["Vicdan","Davranışları ahlaki açıdan değerlendiren iç ses"],["Erdem etiği","Aristoteles: iyi insan erdemli davranışı alışkanlık edinen insandır"],["Ödev ahlakı","Kant: ahlak yasası evrenseldir"],["Faydacılık","Çoğunluğa en çok mutluluk veren davranış ahlaklıdır"]]],
+["10.3.5","Din Felsefesi",79,[["Din felsefesi","Dinî inançları akıl yoluyla inceler"],["Teoloji","Dini, vahiy ve kutsal metin temelinde inceler"],["Teizm","Tanrı evreni yaratmıştır ve yönetir"],["Deizm","Tanrı evreni yaratmıştır ama müdahale etmez"],["Ateizm","Tanrı’nın varlığını reddetme"],["Agnostisizm","Tanrı’nın varlığı bilinemez"]]],
+["10.3.6","Siyaset Felsefesi",85,[["Siyaset felsefesi","Devlet, iktidar, adalet ve özgürlük gibi kavramları inceler"],["Egemenlik","Devletin en üstün karar verme yetkisi"],["Toplum sözleşmesi","Devletin kökeni, bireylerin aralarındaki anlaşmadır"],["Hobbes","Toplum sözleşmesi kuramcısı; güçlü otoriteyi savunur"],["Ütopya","İdeal toplum tasarımı"]]],
+["10.3.7","Sanat Felsefesi",95,[["Sanat felsefesi (estetik)","Güzelliği ve sanatı inceleyen alan"],["Estetik özne","Sanatçı"],["Estetik nesne","Sanat eseri"],["Alımlayıcı","Sanat eserini izleyen, değerlendiren özne"],["Mimesis","Sanatın doğayı taklit etmesi"]]]]],
+["10. Sınıf bölümü · 4. Felsefi Okuma ve Yazma",[
+["10.4","Felsefi Metin Analizi ve Yazma",104,[["Felsefi metin analizi","Metindeki problemi, kavramları ve argümanları belirleme"],["Alternatif görüş geliştirme","Metindekine karşı gerekçeli farklı bir görüş ortaya koyma"],["Felsefi deneme","Özgün ve gerekçeli görüşün yazılı ifadesi"],["Problemin tanımlanması","Felsefi metin yazmanın ilk adımı"]]]]],
+["11. Sınıf bölümü · 1. MÖ 6. Yüzyıl-MS 2. Yüzyıl Felsefesi",[
+["11.1.1","Felsefenin Ortaya Çıkışını Hazırlayan Düşünce Ortamı",112,[["İlk medeniyetler","Mezopotamya, Mısır, Çin, Hint ve İran; felsefenin doğuşuna zemin hazırladı"],["Milet Okulu","Thales, Anaksimandros ve Anaksimenes"],["Herakleitos","Efes’te yaşamış filozof"],["Antik Yunan","Sistemli felsefe faaliyetinin başladığı yer"]]],
+["11.1.2","MÖ 6. Yüzyıl-MS 2. Yüzyıl Felsefesinin Özellikleri",115,[["Arkhe","İlk neden, temel ilke"],["Anaksimandros","Ana madde apeirondur"],["Anaksimenes","Ana madde havadır"],["Herakleitos","Her şey akar; değişim temel niteliktir"],["Parmenides","Varlık birdir, değişmez ve bölünmez"],["Demokritos","Evren atomlardan oluşur"],["Sofistler","Genelgeçer doğru yoktur, bilgi görelidir"],["Sokrates","Benim bilgeliğim bilmediğimi bilmemdedir"],["Platon","Gerçek varlıklar ideadır"],["Aristoteles","Varlık madde ve formdan oluşur"]]]]],
+["11. Sınıf bölümü · 2. MS 2. Yüzyıl-MS 15. Yüzyıl Felsefesi",[
+["11.2.1","Hristiyan Felsefesi",129,[["Augustinus","Doğa ve insan Tanrı merkezli düşünceyle açıklanır; Hristiyan felsefesinin önemli ismi"],["Thomas Aquinas","Akıl ve inanç birbirini tamamlar (Skolastik düşünce)"],["Skolastik düşünce","Orta Çağ’da kilise okullarında gelişen felsefe"]]],
+["11.2.2","İslam Felsefesi",134,[["Beytülhikme","Bağdat’ta kurulan çeviri ve bilim merkezi"],["Kindî","İslam dünyasının ilk filozofu"],["Fârâbî","İkinci Muallim; Erdemli Şehir"],["İbn Sînâ","Sudur öğretisini işleyen İslam filozofu"],["Sudur","Varlıkların “Bir”den taşarak ortaya çıkması"],["İbn Rüşd","Akıl ile vahiy çelişmez"],["Tasavvuf","İnsanı manevi olgunlaşma yoluyla ele alan düşünce"]]]]],
+["11. Sınıf bölümü · 3. 15. Yüzyıl-17. Yüzyıl Felsefesi",[
+["11.3.1","15.-17. Yüzyıl Felsefesi",150,[["Rönesans","Yeniden doğuş; insan ve akıl öne çıkar"],["Francis Bacon","Bilgi güçtür; tümevarım yöntemi"],["Descartes","Rasyonalizmin öncüsü; Düşünüyorum öyleyse varım"],["Locke","Empirizm; zihin doğuştan boş bir levhadır"],["Galileo","Doğayı matematik ve deneyle açıklayan bilim insanı"],["Spinoza","17. yüzyılın rasyonalistlerinden; toplumca yanlış anlaşıldı"],["Skolastik ile modern fark","Modern düşünce aklı ve deneyi, skolastik düşünce otoriteyi öne çıkarır"]]]]],
+["11. Sınıf bölümü · 4. 18. Yüzyıl-19. Yüzyıl Felsefesi",[
+["11.4.1","18.-19. Yüzyıl Felsefesi",168,[["Aydınlanma","Akıl, özgürlük ve ilerleme çağı"],["Kant","Eleştiricilik; hem akıl hem deneyim"],["Hume","Empirist düşünür; şüphecilik eğilimi"],["Rousseau","Toplum sözleşmesi kuramcısı"],["Hegel","Diyalektik ve idealizm"],["Marx","Tarihsel materyalizm"],["Nietzsche","Mevcut değerleri sorgular; güç istenci"],["Comte","Pozitivizmin kurucusu"]]]]],
+["11. Sınıf bölümü · 5. 20. Yüzyıl Felsefesi",[
+["11.5.1","20. Yüzyıl Felsefesi ve Ana Akımları",184,[["Fenomenoloji","Husserl; olguların bilinçte göründüğü gibi incelenmesi"],["Varoluşçuluk","Sartre; varoluş özden önce gelir"],["Analitik felsefe","Russell ve Wittgenstein; dil ve mantık çözümlemesi"],["Pragmatizm","James ve Dewey; doğruluğun ölçütü yararlılıktır"],["Frankfurt Okulu","Adorno ve Horkheimer’ın eleştirel kuramı"],["Hilmi Ziya Ülken","Türkiye’de felsefeye katkıda bulunan düşünür"],["Takiyettin Mengüşoğlu","Türkiye’de felsefeye katkıda bulunan düşünür"],["Nermi Uygur","Türkiye’de felsefeye katkıda bulunan düşünür"]]]]]];
+const U9=[
+["1. Düşünme ve Düşünme Süreci",[["1.1","Düşünme ve Düşünme Süreci",0,[["Düşünme","Bilgiyi işleyerek bir yargıya ya da karara varma etkinliği"],["Merak","Bilmek ve öğrenmek için duyulan istek"],["Eleştirel düşünme","Bilgiyi sorgulayıp gerekçeleriyle değerlendirme"],["Yaratıcı düşünme","Yeni ve özgün fikirler üretme"],["Problem çözme","Bir sorunu tanımlayıp çözüm yolları geliştirme"]]]]],
+["2. Önermeler ve Akıl Yürütme",[["2.1","Önermeler ve Akıl Yürütme",0,[["Önerme","Doğru ya da yanlış olarak değerlendirilen yargı bildiren ifade"],["Akıl yürütme","Bilinen önermelerden yeni sonuçlara ulaşma"],["Tümdengelim","Genelden özele giden akıl yürütme"],["Tümevarım","Özelden genele giden akıl yürütme"],["Analoji","Benzerliklerden yola çıkarak yeni çıkarım yapma"]]]]],
+["3. Veri, Malumat ve Bilgi",[["3.1","Veri, Malumat ve Bilgi",0,[["Veri","İşlenmemiş ham gerçekler"],["Malumat","Verinin anlamlı hâle getirilmiş biçimi"],["Bilgi","Anlaşılıp yorumlanmış, kullanılabilir malumat"],["Kaynak güvenilirliği","Bilginin geldiği yerin doğruluk ve tarafsızlık bakımından değerlendirilmesi"]]]]],
+["4. Düşün, Tasarla ve Uygula",[["4.1","Düşün, Tasarla ve Uygula",0,[["Tasarım","Bir sorun için çözüm önerisini planlı biçimde ortaya koyma"],["Planlama","Yapılacak işlerin sırasını ve araçlarını belirleme"],["Uygulama","Tasarlanan çözümü hayata geçirme"],["Değerlendirme","Sonucun amaca ne kadar uygun olduğunu inceleme"]]]]]];
+const B={"9":U9,"10":U10,"11":U11,"12":U12};
+const BN={"9":"📕 9. Sınıf Düşünme Eğitimi","10":"📘 10. Sınıf Felsefe","11":"📗 11. Sınıf Felsefe","12":"📙 12. Sınıf ATP Felsefe-1"};
+let U=U10,topics=[];
+function book(){U=B[C().g||"10"];topics=U.flatMap((u,i)=>u[1].map(x=>({id:x[0],title:x[1],pg:x[2],u:i,p:x[3]})));sel.t=topics[0].id}
+const GN={quiz:"🎯 Çoktan Seçmeli",fast:"⏱️ Zamana Karşı",fall:"☄️ Kelime Yakala",bal:"🎈 Balon Patlat",tf:"✅ Doğru / Yanlış",match:"🧩 Eşleştirme"},GC={quiz:"#e53935",fast:"#f9a825",fall:"#1e88e5",bal:"#d81b60",tf:"#16a34a",match:"#8e24aa"};
+const K="felsefe_v2";let D;try{D=JSON.parse(localStorage.getItem(K))||{c:{}}}catch(e){D={c:{}}}if(!D.c||!Object.keys(D.c).length){D={c:{}};["10","11"].forEach(g=>{try{const o=JSON.parse(localStorage.getItem("felsefe"+g+"_v1"));if(o)for(const k in o.c){o.c[k].g=g;D.c[k]=o.c[k]}}catch(e){}})}
+D.h=D.h||{};
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}};
+const $=s=>document.querySelector(s),A=$("#app"),sh=a=>[...a].sort(()=>Math.random()-.5),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let cur=null,sel={t:"1.1",g:"quiz"},mute=false,ac,mt,PZ=0,GT,GR;
+// ses
+function beep(f,d=.15,ty="sine",v=.15){if(mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+const sOk=()=>{beep(660,.12);setTimeout(()=>beep(880,.2),110)},sNo=()=>beep(150,.3,"sawtooth"),sEnd=()=>[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.25,"triangle"),i*140));
+function music(on){clearInterval(mt);if(!on){PZ=0;clearInterval(GT);cancelAnimationFrame(GR)}if(on&&!mute){const n=[262,330,392,523,392,330,294,349];let i=0;mt=setInterval(()=>beep(n[i++%8],.25,"triangle",.04),320)}}
+// veri
+
+function pairsOf(id){if(id[0]=="U"){const u=+id.slice(1);return U[u][1].flatMap(t=>t[3])}return topics.find(t=>t.id==id).p}
+function poolOf(id){const u=id[0]=="U"?+id.slice(1):topics.find(t=>t.id==id).u;const p=U[u][1].flatMap(t=>t[3]);return p.length>=5?p:topics.flatMap(t=>t.p)}
+function where(id){if(id[0]=="U")return U[+id.slice(1)][0]+" › tüm ünite";const t=topics.find(x=>x.id==id);return U[t.u][0]+" › "+t.id+" "+t.title+(t.pg?" (s. "+t.pg+")":"")}
+const C=()=>D.c[cur],keyOf=()=>sel.t+"|"+sel.g,tot=(c,no)=>Object.values(c.sc).reduce((s,o)=>s+((o[no]&&o[no].p)||0),0);
+// ekranlar
+function home(){music(0);cur=null;let h=`<div class="top"><h1>📚 Felsefe Oyunları</h1><button onclick="mute=!mute;home()">${mute?"🔇":"🔊"}</button></div><div class="card"><h2>Sınıflarım</h2>`;
+const ks=Object.keys(D.c);h+=ks.length?ks.map(k=>`<div style="margin:6px 0"><b class="tag">${esc(k)}</b> · ${D.c[k].g||"10"}. sınıf · ${D.c[k].n} öğrenci <button onclick="pick(${JSON.stringify(k).replace(/"/g,"&quot;")})">Aç</button><button class="b3" onclick="del(${JSON.stringify(k).replace(/"/g,"&quot;")})">Sil</button></div>`).join(""):"<p>Henüz sınıf yok.</p>";
+h+=`</div><div class="card"><h2>➕ Yeni sınıf</h2><input id="cn" placeholder="Örn: 10/A ATP veya 10/C AMP"> <input id="cc" type="number" min="1" max="60" placeholder="Mevcut" style="width:110px"> <select id="cg"><option value="9">9. sınıf</option><option value="10">10. sınıf</option><option value="11">11. sınıf</option><option value="12">12. sınıf ATP</option></select> <button class="b4" onclick="add()">Ekle</button><p><small>Sınıf adı 9, 10, 11 veya 12 ile başlıyorsa kitap otomatik seçilir (10/A ATP → 10. sınıf). Başlamıyorsa yandaki seçim kullanılır.</small></p></div>`;A.innerHTML=h}
+function add(){const n=$("#cn").value.trim(),c=parseInt($("#cc").value);if(!n||!(c>0)||c>60)return alert("Sınıf adı ve mevcut (1-60) girin.");if(D.c[n])return alert("Bu sınıf zaten var.");const m=n.match(/^\s*(\d{1,2})/),g=m&&B[m[1]]?m[1]:$("#cg").value;D.c[n]={n:c,g,nm:{},sc:{}};save();pick(n)}
+function del(k){if(confirm(k+" sınıfının tüm kayıtları silinsin mi?")){delete D.c[k];save();home()}}
+function pick(k){cur=k;book();setup()}
+function setup(){music(0);let o=U.map((u,i)=>`<optgroup label="${esc(u[0])}"><option value="U${i}">Tüm ünite (${i+1}. Ünite)</option>${u[1].map(t=>`<option value="${t[0]}">${t[0]} ${esc(t[1])} ${t[2]?" (s. "+t[2]+")":""}</option>`).join("")}</optgroup>`).join("");
+A.innerHTML=`<div class="top"><h1>Sınıf: ${esc(cur)} <small class="tag">${BN[C().g||"10"]}</small></h1><span><button class="b2" onclick="panel()">📊 Öğretmen Paneli</button><button onclick="home()">⬅ Sınıflar</button></span></div><div class="card"><h2>Oyunu seç</h2><p>Konu:<br><select id="st" style="width:100%" onchange="sel.t=this.value;info()">${o}</select></p><p>Oyun türü:</p><div class="tiles">${Object.entries(GN).map(([k,v])=>`<button class="tile${k==sel.g?" on":""}" style="background:${GC[k]}" onclick="sel.g='${k}';setup()">${v}</button>`).join("")}</div><p id="inf"></p><button class="b4" onclick="start()">▶ Sınıfla başla</button></div>`;$("#st").value=sel.t;info()}
+function info(){const s=C().sc[keyOf()]||{},d=Object.keys(s).length;$("#inf").innerHTML=`📖 <b>Kitapta:</b> ${esc(where(sel.t))}<br>Bu oyunda kayıtlı öğrenci: ${d}/${C().n}`}
+function nextNo(){const s=C().sc[keyOf()]||{};for(let i=1;i<=C().n;i++)if(!s[i])return i;return 0}
+function start(){const n=nextNo();if(!n){alert("Bu oyunu sınıftaki herkes tamamladı. Panelden sonuçlara bakın.");return panel()}ready(n)}
+function ready(no){music(0);const nm=C().nm[no];A.innerHTML=`<div class="card"><p>📖 ${esc(where(sel.t))} · ${GN[sel.g]}</p><div class="big">Hazır mısın?</div><div class="big">Sıra: <span class="tag">${no}</span> ${nm?esc(nm):""}</div><p style="text-align:center"><button class="b4" style="font-size:1.4em" onclick="play(${no})">▶ Başla</button><button class="b3" onclick="skip(${no})">⏭ Geç (girmedi)</button><button onclick="setup()">⏹ Çık</button></p></div>`}
+function skip(no){const k=keyOf();(C().sc[k]=C().sc[k]||{})[no]={x:1};save();const n=nextNo();n?ready(n):panel()}
+function finish(no,p){music(0);sEnd();boom(p);const k=keyOf();(C().sc[k]=C().sc[k]||{})[no]={p};save();const n=nextNo();A.innerHTML=`<div class="card"><div class="big">🎉 Öğrenci ${no}</div><div class="big">${p} puan</div><div class="big">${"⭐".repeat(Math.round(p/20))||"💪"}</div><p style="text-align:center">${n?`<button class="b4" onclick="ready(${n})">Sıradaki öğrenci: ${n} ▶</button>`:`<button class="b4" onclick="panel()">Tüm sınıf bitti → Paneli aç</button>`}<button onclick="setup()">Çık</button></p></div>`}
+function pause(){clearInterval(mt);PZ=1;$("#ov").style.display="flex"}function resume(){$("#ov").style.display="none";PZ=0;music(1)}
+function play(no){const id=sel.t,P=pairsOf(id),pool=poolOf(id);A.innerHTML=`<div class="top"><b>Sıra: ${no}</b><button class="b2" onclick="pause()">⏸ Duraklat</button></div><div class="card" id="g"></div>`;music(1);({quiz,fast:(a,b,c)=>quiz(a,b,c,1),fall:(a,b,c)=>arena(a,b,c,1),bal:(a,b,c)=>arena(a,b,c,-1),tf,match})[sel.g](P,pool,p=>finish(no,p))}
+function boom(p){const E=["🎉","⭐","🎊","✨","🌟"];for(let i=0;i<Math.max(10,p/2);i++){const e=document.createElement("span");e.className="cf";e.textContent=E[i%5];e.style.left=Math.random()*100+"vw";e.style.animationDelay=Math.random()*1.2+"s";document.body.appendChild(e);setTimeout(()=>e.remove(),5000)}}
+function quiz(P,pool,done,timed){const q=sh(P).slice(0,5),S=["▲","◆","●","■"];let i=0,ok=0;(function r(){clearInterval(GT);if(!$("#g"))return;if(i>=q.length)return done(Math.round(100*ok/q.length));const c=q[i],o=sh([c[0],...sh(pool.filter(x=>x[0]!=c[0])).slice(0,3).map(x=>x[0])]);
+$("#g").innerHTML=`<p>Soru ${i+1}/${q.length} ${"🔥".repeat(ok)}</p>${timed?'<div class="bar"><i id="tb"></i></div>':""}<h2>“${esc(c[1])}” hangi kavramı anlatır?</h2>`+o.map((t,n)=>`<button class="opt c${n}" data-t="${esc(t)}">${S[n]} ${esc(t)}</button>`).join("");
+const end=g=>{clearInterval(GT);document.querySelectorAll(".opt").forEach(x=>{x.onclick=null;if(x.dataset.t==c[0])x.classList.add("ok")});g?(ok++,sOk()):sNo();setTimeout(()=>{i++;r()},1100)};
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const g=b.dataset.t==c[0];if(!g)b.classList.add("no");end(g)});
+if(timed){let t=100;GT=setInterval(()=>{if(PZ)return;t--;$("#tb").style.width=t+"%";if(t==25)beep(900,.1);if(t<=0)end(0)},80)}})()}
+function arena(P,pool,done,dir){const q=sh(P).slice(0,6);let i=0,ok=0,lv=3,it=[],sq=[],cl,lt=0,sp=0,over=0;
+$("#g").innerHTML=`<div id="hud"></div><div id="clue"></div><div id="arena" class="${dir>0?"fall":""}"></div>`;const AR=$("#arena");
+const hud=()=>$("#hud").innerHTML=`<span>Soru ${Math.min(i+1,q.length)}/${q.length}</span><span>${"❤️".repeat(Math.max(lv,0))}</span><span>⭐ ${ok}</span>`;
+function nq(){it.forEach(e=>e.el.remove());it=[];if(i>=q.length||lv<=0){over=1;return done(Math.round(100*ok/q.length))}cl=q[i];$("#clue").textContent="🔎 "+cl[1];sq=sh([[cl[0],1],...sh(pool.filter(x=>x[0]!=cl[0])).slice(0,3).map(x=>[x[0],0])]);sp=.4;hud()}
+function add(t,r){const e=document.createElement("div");e.className="fw"+(dir<0?" bl":"");e.textContent=t;e.style.background="hsl("+(Math.random()*360|0)+" 70% 42%)";AR.appendChild(e);e.style.left=Math.random()*Math.max(1,AR.clientWidth-e.offsetWidth)+"px";
+const o={el:e,r,y:dir>0?-50:AR.clientHeight,v:dir*(60+i*9+Math.random()*25)};e.style.top=o.y+"px";
+e.onpointerdown=()=>{if(PZ||over)return;if(r){ok++;i++;sOk();nq()}else{lv--;sNo();e.remove();it=it.filter(x=>x!=o);lv<=0?nq():hud()}};it.push(o)}
+function loop(t){GR=requestAnimationFrame(loop);const dt=Math.min(.05,(t-lt)/1000);lt=t;if(PZ||over)return;
+sp-=dt;if(sq.length&&sp<=0){const x=sq.shift();add(x[0],x[1]);sp=1.15}
+for(const o of it.slice()){o.y+=o.v*dt;o.el.style.top=o.y+"px";if(dir>0?o.y>AR.clientHeight-4:o.y<-60){o.el.remove();it=it.filter(x=>x!=o);if(o.r){lv--;sNo();i++;nq();break}}}}
+nq();lt=performance.now();GR=requestAnimationFrame(loop)}
+function tf(P,pool,done){const q=sh(P).slice(0,6).map(c=>{const t=Math.random()<.5,o=sh(pool.filter(x=>x[1]!=c[1]))[0];return{s:c[0]+": "+(t?c[1]:o[1]),t}});let i=0,ok=0;(function r(){if(i>=q.length)return done(Math.round(100*ok/q.length));
+$("#g").innerHTML=`<p>İfade ${i+1}/${q.length}</p><h2>${esc(q[i].s)}</h2><div class="grid"><button class="b4 a" data-v="1" style="font-size:1.5em">✔ Doğru</button><button class="b3 a" data-v="0" style="font-size:1.5em">✖ Yanlış</button></div>`;
+document.querySelectorAll(".a").forEach(b=>b.onclick=()=>{document.querySelectorAll(".a").forEach(x=>x.onclick=null);const g=(b.dataset.v=="1")==q[i].t;if(g){ok++;sOk();b.classList.add("ok")}else{sNo();b.classList.add("no")}$("#g").insertAdjacentHTML("beforeend",`<p><b>${q[i].t?"Doğru ifade.":"Yanlış ifade: açıklama başka kavrama ait."}</b></p>`);setTimeout(()=>{i++;r()},1400)})})()}
+function match(P,pool,done){const m=sh(P).slice(0,5);let L=null,err=0,left=m.length;const R=sh(m);
+$("#g").innerHTML=`<h2>Kavramı açıklamasıyla eşleştir</h2><div class="grid"><div>${m.map(c=>`<button class="opt l" data-k="${esc(c[0])}">${esc(c[0])}</button>`).join("")}</div><div>${R.map(c=>`<button class="opt r" data-k="${esc(c[0])}">${esc(c[1])}</button>`).join("")}</div></div>`;
+document.querySelectorAll(".l").forEach(b=>b.onclick=()=>{document.querySelectorAll(".l").forEach(x=>x.classList.remove("sel"));L=b;b.classList.add("sel");beep(500,.06)});
+document.querySelectorAll(".r").forEach(b=>b.onclick=()=>{if(!L)return;if(L.dataset.k==b.dataset.k){sOk();L.classList.add("gone");b.classList.add("gone");L=null;if(!--left)setTimeout(()=>done(Math.max(0,100-15*err)),500)}else{err++;sNo();b.classList.add("no");setTimeout(()=>b.classList.remove("no"),400)}})}
+// öğretmen paneli
+function panel(){music(0);const c=C(),ks=Object.keys(c.sc);let h=`<div class="top"><h1>📊 ${esc(cur)} Paneli</h1><span><button onclick="csv()">⬇ CSV</button><button class="b3" onclick="reset()">Tümünü sıfırla</button><button onclick="setup()">⬅ Geri</button></span></div><div class="card" style="overflow:auto"><p>Hücreye tıklayarak puanı düzeltin (boş bırakırsanız silinir, “x” girmedi). Numaraya tıklayarak isim ekleyin.</p><table><tr><th>No</th><th>İsim</th>${ks.map(k=>{const[t,g]=k.split("|");return`<th>${t[0]=="U"?"Ünite "+t.slice(1):t}<br><small>${GN[g]}</small></th>`}).join("")}<th>Toplam</th></tr>`;
+for(let n=1;n<=c.n;n++)h+=`<tr><td><b>${n}</b></td><td onclick="nm(${n})" style="cursor:pointer">${esc(c.nm[n]||"✎")}</td>${ks.map(k=>{const v=c.sc[k][n];return`<td onclick="ed('${k}',${n})" style="cursor:pointer">${v?(v.x?"girmedi":v.p):"·"}</td>`}).join("")}<td><b>${tot(c,n)}</b></td></tr>`;
+A.innerHTML=h+"</table></div>"}
+function nm(n){const v=prompt(n+". öğrencinin ismi:",C().nm[n]||"");if(v!==null){C().nm[n]=v.trim();save();panel()}}
+function ed(k,n){const o=C().sc[k][n],v=prompt("Puan (0-100), “x” = girmedi, boş = sil:",o?(o.x?"x":o.p):"");if(v===null)return;const s=C().sc[k];if(v.trim()==="")delete s[n];else if(v.trim().toLowerCase()=="x")s[n]={x:1};else{const p=parseInt(v);if(isNaN(p))return;s[n]={p}}save();panel()}
+function reset(){if(confirm(cur+" sınıfının tüm puanları silinsin mi?")){C().sc={};save();panel()}}
+function csv(){const c=C(),ks=Object.keys(c.sc);let r=[["No","İsim",...ks.map(k=>k.replace("|"," ")),"Toplam"]];for(let n=1;n<=c.n;n++)r.push([n,c.nm[n]||"",...ks.map(k=>{const v=c.sc[k][n];return v?(v.x?"girmedi":v.p):""}),tot(c,n)]);
+const b=new Blob(["\ufeff"+r.map(x=>x.map(y=>'"'+String(y).replace(/"/g,'""')+'"').join(",")).join("\n")],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=cur.replace(/[\/ ]/g,"_")+".csv";a.click()}
+// ===== FIREBASE + YEREL ONCELIKLI SENKRON =====
+const FBC={apiKey:"AIzaSyBq7mt1Iqm1BI0T9KjlKuKL4pScVFlUow0",authDomain:"felsefe-mostem.firebaseapp.com",projectId:"felsefe-mostem",storageBucket:"felsefe-mostem.firebasestorage.app",messagingSenderId:"538963541273",appId:"1:538963541273:web:dba9f3e4ec7641fbf35988"};
+const SYNC_MS=30*60*1000,FBV="https://www.gstatic.com/firebasejs/10.14.1/";
+let FB=null,FP=null,SM="⏳ Bağlanıyor…",busy=0;
+if(D.hp!=="classes"){D.h={};D.hp="classes";save()}
+const hs=s=>{let h=5381;for(let i=0;i<s.length;i++)h=(h*33^s.charCodeAt(i))>>>0;return s.length+":"+h},
+tmo=(p,ms=25000)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("zaman aşımı")),ms))]),
+enc=k=>encodeURIComponent(k);
+const DOT=document.createElement("div");DOT.style.cssText="position:fixed;top:8px;left:8px;width:16px;height:16px;border-radius:50%;background:#e53935;border:2px solid #fff;box-shadow:0 2px 6px #0006;z-index:10;pointer-events:none;display:none";document.body.appendChild(DOT);
+function setSt(m){SM=m;DOT.style.display=/^(📴|⚠️)/.test(m)?"block":"none";DOT.title=m}
+function fbInit(){if(FP)return FP;FP=(async()=>{try{
+const[a,fs]=await Promise.all([import(FBV+"firebase-app.js"),import(FBV+"firebase-firestore.js")]);
+const app=a.initializeApp(FBC);FB={fs,db:fs.getFirestore(app)};return FB}catch(e){FP=null;setSt("📴 Firebase yüklenemedi – yerel mod");return null}})();return FP}
+async function sync(manual){
+if(busy)return;
+if(!navigator.onLine){setSt("📴 Çevrimdışı – veriler yerelde, bağlanınca eşitlenecek");return}
+const f=await fbInit();if(!f){if(manual)alert("Firebase yüklenemedi.");return}
+busy=1;setSt("🔄 Eşitleniyor…");
+try{
+const{fs,db}=f,col=fs.collection(db,"classes"),snap=await tmo(fs.getDocs(col)),cl={},L={};
+snap.forEach(d=>{const x=d.data();try{cl[x.name]=JSON.stringify(JSON.parse(x.data))}catch(e){}});
+for(const k in D.c)L[k]=JSON.stringify(D.c[k]);
+const op={push:[],pull:[],rmL:[],rmC:[],ok:[]};
+new Set([...Object.keys(L),...Object.keys(cl)]).forEach(k=>{
+const l=L[k],c=cl[k],has=k in D.h,dirty=!has||(l!==undefined&&hs(l)!==D.h[k]);
+if(l!==undefined&&c!==undefined)l===c?op.ok.push(k):(dirty?op.push:op.pull).push(k);
+else if(l!==undefined)(dirty?op.push:op.rmL).push(k);
+else(has?op.rmC:op.pull).push(k)});
+if(op.push.length||op.rmC.length){const b=fs.writeBatch(db);
+op.push.forEach(k=>b.set(fs.doc(col,enc(k)),{name:k,data:L[k],u:Date.now()}));
+op.rmC.forEach(k=>b.delete(fs.doc(col,enc(k))));
+await tmo(b.commit())}
+let ch=0;const now=k=>D.c[k]?JSON.stringify(D.c[k]):undefined;
+op.ok.concat(op.push).forEach(k=>D.h[k]=hs(L[k]));
+op.rmC.forEach(k=>delete D.h[k]);
+op.pull.forEach(k=>{if(now(k)===L[k]){D.c[k]=JSON.parse(cl[k]);D.h[k]=hs(cl[k]);ch=1}});
+op.rmL.forEach(k=>{if(now(k)===L[k]){delete D.c[k];delete D.h[k];ch=1}});
+D.ls=Date.now();save();setSt("✅ Eşitlendi");
+if(ch){if(cur&&!D.c[cur]){cur=null;home()}else if(!cur&&!document.activeElement.matches("input,select"))home()}
+}catch(e){setSt("⚠️ Eşitleme olmadı: "+(e.code==="permission-denied"?"Firestore kurallarını kontrol edin":(e.code||e.message))+" – veriler yerelde güvende")}
+finally{busy=0}}
+setInterval(()=>sync(),SYNC_MS);
+addEventListener("online",()=>sync());
+addEventListener("offline",()=>setSt("📴 Çevrimdışı – yerelde kaydediliyor"));
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+if("serviceWorker"in navigator&&location.protocol.indexOf("http")==0)navigator.serviceWorker.register("sw.js").catch(()=>{});
+setTimeout(()=>sync(),300);
+home();
+</script></body></html>
