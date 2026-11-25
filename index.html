@@ -188,23 +188,22 @@ const b=new Blob(["\ufeff"+r.map(x=>x.map(y=>'"'+String(y).replace(/"/g,'""')+'"
 // ===== FIREBASE + YEREL ONCELIKLI SENKRON =====
 const FBC={apiKey:"AIzaSyBq7mt1Iqm1BI0T9KjlKuKL4pScVFlUow0",authDomain:"felsefe-mostem.firebaseapp.com",projectId:"felsefe-mostem",storageBucket:"felsefe-mostem.firebasestorage.app",messagingSenderId:"538963541273",appId:"1:538963541273:web:dba9f3e4ec7641fbf35988"};
 const SYNC_MS=30*60*1000,FBV="https://www.gstatic.com/firebasejs/10.14.1/";
-let FB=null,FP=null,SM="⏳ Bağlanıyor…",busy=0;
+let FB=null,FP=null,FR=0,SM="⏳ Bağlanıyor…",busy=0;
 if(D.hp!=="classes"){D.h={};D.hp="classes";save()}
 const hs=s=>{let h=5381;for(let i=0;i<s.length;i++)h=(h*33^s.charCodeAt(i))>>>0;return s.length+":"+h},
 tmo=(p,ms=25000)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("zaman aşımı")),ms))]),
 enc=k=>encodeURIComponent(k);
-const DOT=document.createElement("div");DOT.style.cssText="position:fixed;top:8px;left:8px;width:16px;height:16px;border-radius:50%;background:#e53935;border:2px solid #fff;box-shadow:0 2px 6px #0006;z-index:10;pointer-events:none;display:none";document.body.appendChild(DOT);
+const DOT=document.createElement("div");DOT.style.cssText="position:fixed;top:8px;left:8px;width:16px;height:16px;border-radius:50%;background:#e53935;border:2px solid #fff;box-shadow:0 2px 6px #0006;z-index:10;cursor:pointer;display:none";DOT.onclick=()=>{alert(SM);sync(1)};document.body.appendChild(DOT);
 function setSt(m){SM=m;DOT.style.display=/^(📴|⚠️)/.test(m)?"block":"none";DOT.title=m}
 function fbInit(){if(FP)return FP;FP=(async()=>{try{
 const[a,fs]=await Promise.all([import(FBV+"firebase-app.js"),import(FBV+"firebase-firestore.js")]);
-const app=a.initializeApp(FBC);FB={fs,db:fs.getFirestore(app)};return FB}catch(e){FP=null;setSt("📴 Firebase yüklenemedi – yerel mod");return null}})();return FP}
+const app=a.initializeApp(FBC);FB={fs,db:fs.initializeFirestore(app,{experimentalForceLongPolling:true})};return FB}catch(e){FP=null;setSt("📴 Firebase yüklenemedi: "+(e.message||e));if(FR++<3)setTimeout(()=>sync(),15000);return null}})();return FP}
 async function sync(manual){
 if(busy)return;
-if(!navigator.onLine){setSt("📴 Çevrimdışı – veriler yerelde, bağlanınca eşitlenecek");return}
 const f=await fbInit();if(!f){if(manual)alert("Firebase yüklenemedi.");return}
 busy=1;setSt("🔄 Eşitleniyor…");
 try{
-const{fs,db}=f,col=fs.collection(db,"classes"),snap=await tmo(fs.getDocs(col)),cl={},L={};
+const{fs,db}=f,col=fs.collection(db,"classes"),snap=await tmo(fs.getDocs(col),20000),cl={},L={};
 snap.forEach(d=>{const x=d.data();try{cl[x.name]=JSON.stringify(JSON.parse(x.data))}catch(e){}});
 for(const k in D.c)L[k]=JSON.stringify(D.c[k]);
 const op={push:[],pull:[],rmL:[],rmC:[],ok:[]};
@@ -224,7 +223,7 @@ op.pull.forEach(k=>{if(now(k)===L[k]){D.c[k]=JSON.parse(cl[k]);D.h[k]=hs(cl[k]);
 op.rmL.forEach(k=>{if(now(k)===L[k]){delete D.c[k];delete D.h[k];ch=1}});
 D.ls=Date.now();save();setSt("✅ Eşitlendi");
 if(ch){if(cur&&!D.c[cur]){cur=null;home()}else if(!cur&&!document.activeElement.matches("input,select"))home()}
-}catch(e){setSt("⚠️ Eşitleme olmadı: "+(e.code==="permission-denied"?"Firestore kurallarını kontrol edin":(e.code||e.message))+" – veriler yerelde güvende")}
+}catch(e){setSt("⚠️ Eşitleme olmadı: "+(e.code==="permission-denied"?"Firestore kurallarını kontrol edin":(e.code||"")+" "+(e.message||""))+" – veriler yerelde güvende")}
 finally{busy=0}}
 setInterval(()=>sync(),SYNC_MS);
 addEventListener("online",()=>sync());
@@ -233,4 +232,4 @@ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}ca
 if("serviceWorker"in navigator&&location.protocol.indexOf("http")==0)navigator.serviceWorker.register("sw.js").catch(()=>{});
 setTimeout(()=>sync(),300);
 home();
-</script><div style="position:fixed;bottom:2px;left:0;right:0;text-align:center;font:8px monospace;letter-spacing:1px;color:rgba(128,128,128,.22);pointer-events:none;user-select:none;z-index:5">Hexcode 1982</div></body></html>
+</script><div style="position:fixed;bottom:2px;left:0;right:0;text-align:center;font:9px monospace;letter-spacing:1px;color:rgba(128,128,128,.35);pointer-events:none;user-select:none;z-index:2147483000">Hexcode 1982</div></body></html>
